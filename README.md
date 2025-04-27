@@ -1,6 +1,4 @@
-# project---warehouse-AI-algorithm
-
-# Placement Order Optimizer
+# Project---warehouse-AI-algorithm
 
 This project provides a simple Simulated Annealing (SA) based optimizer for determining the best item placement order based on item size.
 
