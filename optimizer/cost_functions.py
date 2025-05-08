@@ -9,9 +9,9 @@ def overlap(box1, box2):
                 box2.z + box2.depth <= box1.z)
 
 def try_place(box, placed_boxes, container):
-    for x in range(container['width'] - int(box.width) + 1):
+    for z in range(container['depth'] - int(box.depth) + 1):
         for y in range(container['height'] - int(box.height) + 1):
-            for z in range(container['depth'] - int(box.depth) + 1):
+            for x in range(container['width'] - int(box.width) + 1):
                 box.x, box.y, box.z = x, y, z
                 if all(not overlap(box, other) for other in placed_boxes):
                     return True
@@ -22,6 +22,7 @@ def advanced_cost_function(order, container):
     center_x, center_y, center_z = container['width'] / 2, container['height'] / 2, container['depth'] / 2
     total_x = total_y = total_z = total_volume = 0
     fragile_penalty = 0
+    max_z = 0
 
     for box in order:
         placed = False
@@ -33,6 +34,7 @@ def advanced_cost_function(order, container):
                 total_y += box.y + box.height / 2
                 total_z += box.z + box.depth / 2
                 total_volume += box.width * box.height * box.depth
+                max_z = max(max_z, box.z + box.depth)
 
                 # Check fragile penalty
                 if box.is_fragile:
@@ -51,5 +53,6 @@ def advanced_cost_function(order, container):
     avg_x, avg_y, avg_z = total_x / len(placed_boxes), total_y / len(placed_boxes), total_z / len(placed_boxes)
     center_penalty = math.sqrt((avg_x - center_x) ** 2 + (avg_y - center_y) ** 2 + (avg_z - center_z) ** 2)
     unused_volume = container['width'] * container['height'] * container['depth'] - total_volume
+    height_penalty = max_z / container['depth']
 
-    return center_penalty + fragile_penalty + unused_volume / (container['width'] * container['height'] * container['depth'])
+    return center_penalty + fragile_penalty + height_penalty + unused_volume / (container['width'] * container['height'] * container['depth'])

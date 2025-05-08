@@ -16,14 +16,12 @@ def main():
     best_solution, best_cost = simulated_annealing(boxes, container)
 
     print("\nBest order of boxes:")
-    for box in best_solution:
-        print(f"Box(id={box.box_id}, x={box.x}, y={box.y}, z={box.z}, w={box.width}, h={box.height}, d={box.depth})")
-
     # Remove duplicates by box_id (keep first occurrence)
     seen_ids = set()
     records = []
     for box in best_solution:
         if box.box_id not in seen_ids:
+            print(f"Box ID: {box.box_id}, Position: ({box.x}, {box.y}, {box.z}), Dimensions: ({box.width}, {box.height}, {box.depth})")
             records.append({
                 'box_id': box.box_id,
                 'x': box.x,

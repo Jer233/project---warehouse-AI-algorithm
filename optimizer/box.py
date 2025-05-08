@@ -10,12 +10,12 @@ class Box:
         self.height = original_height
         self.depth = original_depth
         self.orientation = [
-            (original_width, original_height, original_depth),
-            (original_width, original_depth, original_height),
-            (original_height, original_width, original_depth),
-            (original_height, original_depth, original_width),
-            (original_depth, original_width, original_height),
-            (original_depth, original_height, original_width)
+            (self.original_width, self.original_height, self.original_depth),
+            (self.original_width, self.original_depth, self.original_height),
+            (self.original_height, self.original_width, self.original_depth),
+            (self.original_height, self.original_depth, self.original_width),
+            (self.original_depth, self.original_width, self.original_height),
+            (self.original_depth, self.original_height, self.original_width)
         ]
 
     def rotate(self, orientation_idx):
