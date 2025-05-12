@@ -18,7 +18,7 @@ def main():
     print(f"✅ Total boxes created: {len(boxes)}")
     print(f"✅ Box IDs: {[box.box_id for box in boxes]}")
 
-    container = {'width': 50, 'height': 50, 'depth': 50}
+    container = {'width': 20, 'height': 15, 'depth': 20}
 
     best_solution, best_cost = simulated_annealing(boxes, container)
 

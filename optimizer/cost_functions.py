@@ -17,12 +17,26 @@ def try_place(box, placed_boxes, container):
                     return True
     return False
 
+def is_small_box(box, threshold_volume=10):
+    return box.width * box.height * box.depth < threshold_volume
+
+def is_on_edge(box, container, margin=1.0):
+    return (box.x <= margin or
+            box.y <= margin or
+            box.z <= margin or
+            box.x + box.width >= container['width'] - margin or
+            box.y + box.height >= container['height'] - margin or
+            box.z + box.depth >= container['depth'] - margin)
+
 def advanced_cost_function(order, container):
     placed_boxes = []
     center_x, center_y, center_z = container['width'] / 2, container['height'] / 2, container['depth'] / 2
     total_x = total_y = total_z = total_volume = 0
     fragile_penalty = 0
     max_z = 0
+    unplaced_penalty = 0
+    base_bias_penalty = 0
+    edge_penalty = 0
 
     for box in order:
         placed = False
@@ -38,21 +52,38 @@ def advanced_cost_function(order, container):
 
                 # Check fragile penalty
                 if box.is_fragile:
-                    above_count = sum(
-                        1 for other in placed_boxes if 
-                        other.x == box.x and other.y == box.y and 
-                        other.z > box.z and overlap(other, box)
+                    stacked = sum(
+                        1 for other in placed_boxes if other != box and overlap(other, box) and other.z < box.z
                     )
-                    if above_count > 1:
+                    if stacked > 0:
                         fragile_penalty += 1e6
-                placed = True
+                
+                base_bias_penalty += (box.x + box.y + box.z)
+
+                if is_small_box(box) and is_on_edge(box, container):
+                    edge_penalty += 1e6
+
                 break
+
         if not placed:
-            return 1e9
+            return 1e12
 
     avg_x, avg_y, avg_z = total_x / len(placed_boxes), total_y / len(placed_boxes), total_z / len(placed_boxes)
     center_penalty = math.sqrt((avg_x - center_x) ** 2 + (avg_y - center_y) ** 2 + (avg_z - center_z) ** 2)
-    unused_volume = container['width'] * container['height'] * container['depth'] - total_volume
+
+    total_container_volume = container['width'] * container['height'] * container['depth']
+    unused_volume = total_container_volume - total_volume
+
+    volumn_penalty = unused_volume / total_container_volume
     height_penalty = max_z / container['depth']
 
-    return center_penalty + fragile_penalty + height_penalty + unused_volume / (container['width'] * container['height'] * container['depth'])
+    total_cost = (
+        center_penalty +
+        fragile_penalty +
+        volumn_penalty +
+        (max_z / container['depth']) +
+        base_bias_penalty * 0.5 +
+        unplaced_penalty +
+        edge_penalty
+    )
+    return total_cost
