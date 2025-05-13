@@ -8,9 +8,9 @@ class Box:
         self.original_depth = float(original_depth)
         self.is_fragile = bool(int(is_fragile))
         self.x = self.y = self.z = 0
-        self.width = original_width
-        self.height = original_height
-        self.depth = original_depth
+        self.width = self.original_width
+        self.height = self.original_height
+        self.depth = self.original_depth
         self.unique_id = Box.counter
         Box.counter += 1
         self.orientation = [
@@ -24,8 +24,6 @@ class Box:
 
     def rotate(self, idx):
         self.width, self.height, self.depth = self.orientation[idx]
-        assert self.width > 0 and self.height > 0 and self.depth > 0, f"Invalid rotation for box {self.box_id}"
-
 
     def copy(self):
         new_box = Box(self.box_id, self.original_width, self.original_height, self.original_depth, self.is_fragile)
