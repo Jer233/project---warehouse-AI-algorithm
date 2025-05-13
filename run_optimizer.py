@@ -24,12 +24,12 @@ def main():
     for i in range(total_runs):
         print(f"▶ Run {i+1}/{total_runs}")
         run_boxes = [b.copy() for b in boxes]
-        sol, cost = simulated_annealing(run_boxes, container)
+        solution, cost = simulated_annealing(run_boxes, container)
         if cost < best_cost:
             best_cost = cost
-            best_overall = [b.copy() for b in sol]
+            best_overall = [b.copy() for b in solution]
 
-    print("\n✅ Best Cost:", best_cost)
+    print("\n Best Cost:", best_cost)
     records = []
     for box in best_overall:
         print(f"Box {box.box_id} → Pos=({box.x},{box.y},{box.z}) Size=({box.width},{box.height},{box.depth})")
@@ -44,7 +44,7 @@ def main():
         })
 
     pd.DataFrame(records).to_csv('data/optimized_box_data.csv', index=False)
-    print("📁 Saved to 'data/optimized_box_data.csv'")
+    print("Saved to 'data/optimized_box_data.csv'")
 
 if __name__ == "__main__":
     main()
