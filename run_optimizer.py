@@ -31,9 +31,9 @@ def main():
 
     print("\n Best Cost:", best_cost)
     records = []
-    for box in best_overall:
-        print(f"Box {box.box_id} → Pos=({box.x},{box.y},{box.z}) Size=({box.width},{box.height},{box.depth})")
+    for idx, box in enumerate(best_overall):
         records.append({
+            'placement_order': idx+1,
             'box_id': box.box_id,
             'x': box.x,
             'y': box.y,
@@ -41,6 +41,7 @@ def main():
             'width': box.width,
             'height': box.height,
             'depth': box.depth
+            
         })
 
     pd.DataFrame(records).to_csv('data/optimized_box_data.csv', index=False)
