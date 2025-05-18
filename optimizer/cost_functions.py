@@ -40,6 +40,7 @@ def advanced_cost_function(order, container):
     fragile_penalty = 0
     edge_penalty = 0
     base_bias_penalty = 0
+    wall_bonus = 0
     max_z = 0
 
     for box in order:
@@ -65,6 +66,14 @@ def advanced_cost_function(order, container):
 
                 # 计算基础偏差惩罚 （越靠近原点惩罚越小）
                 base_bias_penalty += box.x + box.y + box.z
+
+                # 如果箱子放在边缘，惩罚增加
+                # 如果箱子放在边缘，惩罚增加
+                if box.x == 0 or box.y == 0 or box.z == 0:
+                    wall_bonus -= 1.0
+                else:
+                    wall_bonus += 2.0
+
                 placed = True
                 break
 
@@ -98,4 +107,6 @@ def advanced_cost_function(order, container):
             edge_penalty +
             base_bias_penalty * 0.5 +
             volume_penalty +
-            height_penalty)
+            height_penalty +
+            wall_bonus
+    )
