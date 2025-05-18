@@ -2,6 +2,7 @@ import random
 import math
 from optimizer.cost_functions import advanced_cost_function
 
+# 这个文件实现了模拟退火算法，用于优化箱子的放置。它使用了一个成本函数来评估当前的放置方案，并通过随机扰动来寻找更好的解决方案。
 def simulated_annealing(boxes, container, initial_temp=1000, cooling_rate=0.99, stop_T=1, max_iter=10000):
     current_solution = [b.copy() for b in boxes]
     current_cost = advanced_cost_function(current_solution, container)
