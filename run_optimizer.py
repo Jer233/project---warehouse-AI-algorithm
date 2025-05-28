@@ -17,14 +17,14 @@ from optimizer.box import Box
 # 这个文件是一个优化器的主程序。它从 CSV 文件中读取箱子数据，创建箱子对象，并使用模拟退火算法来优化箱子的放置。
 # 最后，它将优化后的箱子数据保存到另一个 CSV 文件中。该程序的设计允许用户轻松地调整容器的大小和模拟退火算法的参数，以获得最佳的箱子放置方案。
 def main():
-    df = pd.read_csv('data/box_placement_data.csv')
+    df = pd.read_csv('data/artificial_task_1.csv')
     df['is_fragile'] = df['is_fragile'].fillna(0).astype(int)
 
     boxes = [Box(
         row['box_id'],
-        row['original_width'],
-        row['original_height'],
-        row['original_depth'],
+        row['width'],
+        row['height'],
+        row['depth'],
         row['is_fragile']
     ) for _, row in df.iterrows()]
 
@@ -53,8 +53,8 @@ def main():
             'z': box.z,
             'width': box.width,
             'height': box.height,
-            'depth': box.depth
-            
+            'depth': box.depth,
+            'is_fragile': box.is_fragile
         })
 
     pd.DataFrame(records).to_csv('data/optimized_box_data.csv', index=False)
