@@ -1,0 +1,2 @@
+Strategy,Container Volume,Total Box Volume,Space Utilization (%),Boxes Against Walls,Fragile Boxes Supported,Proportion Supported (%),Small Boxes on Edges,Maximum Stack Height,Center Offset
+simulated annealing,1152,733.0,63.63,26,No,100.0,4,8.0,4.76

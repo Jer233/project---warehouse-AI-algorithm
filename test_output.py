@@ -1,86 +1,105 @@
 import pandas as pd
+import os
 
-# Load the output file
-csv_path = 'data/optimized_box_data.csv'
-# csv_path = 'data/box_original_data.csv'  # Replace if needed
-df = pd.read_csv(csv_path)
-
-# Container spec
-container = {'width': 20, 'height': 15, 'depth': 20}
+# Container specification
+container = {'width': 18, 'height': 8, 'depth': 8}
 container_volume = container['width'] * container['height'] * container['depth']
 
-# Convert to list
-boxes = df.to_dict(orient='records')
+def load_boxes(csv_path):
+    df = pd.read_csv(csv_path)
+    return df.to_dict(orient='records')
 
-# Total used volume
-total_box_volume = sum(box['width'] * box['height'] * box['depth'] for box in boxes)
-space_utilization = (total_box_volume / container_volume) * 100
+def compute_volume_utilization(boxes):
+    total_volume = sum(b['width'] * b['height'] * b['depth'] for b in boxes)
+    return total_volume, (total_volume / container_volume) * 100
 
-# Boxes against wall
-def count_boxes_against_walls(boxes, container):
+def count_boxes_against_walls(boxes):
     return sum(
-        1 for box in boxes if (
-            box['x'] == 0 or box['y'] == 0 or box['z'] == 0 or
-            box['x'] + box['width'] == container['width'] or
-            box['y'] + box['height'] == container['height'] or
-            box['z'] + box['depth'] == container['depth']
+        1 for b in boxes if (
+            b['x'] == 0 or b['y'] == 0 or b['z'] == 0 or
+            b['x'] + b['width'] == container['width'] or
+            b['y'] + b['height'] == container['height'] or
+            b['z'] + b['depth'] == container['depth']
         )
     )
 
-# Unreasonable small boxes at edges
 def count_unreasonable_edge_boxes(boxes):
     return sum(
-        1 for box in boxes
-        if (box['width'] * box['height'] * box['depth'] < 10 and
-            (box['x'] == 0 or box['y'] == 0 or
-             box['x'] + box['width'] == container['width'] or
-             box['y'] + box['height'] == container['height']))
+        1 for b in boxes if (
+            b['width'] * b['height'] * b['depth'] < 10 and (
+                b['x'] == 0 or b['y'] == 0 or
+                b['x'] + b['width'] == container['width'] or
+                b['y'] + b['height'] == container['height']
+            )
+        )
     )
 
-# Fragile box stacking check
-def check_fragile_boxes_supported(boxes, small_volume_threshold=10):
+def check_fragile_boxes_supported(boxes, threshold=10):
     for box in boxes:
         if box.get('is_fragile', False):
             for other in boxes:
                 if other == box:
                     continue
+                # Check if other is stacked above this fragile box
                 if (other['z'] < box['z'] + box['depth'] and
                     other['z'] >= box['z'] and
                     other['x'] < box['x'] + box['width'] and
                     other['x'] + other['width'] > box['x'] and
                     other['y'] < box['y'] + box['height'] and
                     other['y'] + other['height'] > box['y']):
-
-                    # 允许小箱子放在 fragile 上面
+                    
                     volume = other['width'] * other['height'] * other['depth']
-                    if volume >= small_volume_threshold:
+                    if volume >= threshold:
                         return False
     return True
 
+def compute_center_offset(boxes):
+    center_x = container['width'] / 2
+    center_z = container['depth'] / 2
+    offsets = [
+        abs((b['x'] + b['width'] / 2) - center_x) + abs((b['z'] + b['depth'] / 2) - center_z)
+        for b in boxes
+    ]
+    return round(sum(offsets) / len(offsets), 2) if offsets else 0.0
 
-# Run checks
-boxes_against_walls = count_boxes_against_walls(boxes, container)
-unreasonable_edge_boxes = count_unreasonable_edge_boxes(boxes)
-fragile_supported = check_fragile_boxes_supported(boxes)
+def evaluate_solution(path, strategy_name):
+    print(f"\nEvaluating: {strategy_name}")
+    boxes = load_boxes(path)
+    total_vol, util = compute_volume_utilization(boxes)
+    result = {
+        'Strategy': strategy_name,
+        'Container Volume': container_volume,
+        'Total Box Volume': total_vol,
+        'Space Utilization (%)': round(util, 2),
+        'Boxes Against Walls': count_boxes_against_walls(boxes),
+        'Unreasonable Edge Boxes': count_unreasonable_edge_boxes(boxes),
+        'Fragile Boxes Supported': 'Yes' if check_fragile_boxes_supported(boxes) else 'No',
+        'Center Offset': compute_center_offset(boxes)
+    }
+    for k, v in result.items():
+        print(f"{k}: {v}")
+    return result
 
-# Print results
-print("\n--- Optimization Evaluation ---")
-print(f"Container Volume: {container_volume}")
-print(f"Total Box Volume: {total_box_volume}")
-print(f"Space Utilization: {space_utilization:.2f}%")
-print(f"Boxes Against Walls: {boxes_against_walls}")
-print(f"Unreasonable Edge Boxes: {unreasonable_edge_boxes}")
-print(f"Fragile Boxes Supported: {'Yes' if fragile_supported else 'No'}")
+def main():
+    output_dir = 'data/results'
+    strategies = {
+        'Simulated Annealing': os.path.join(output_dir, 'sa_output.csv'),
+        'Greedy Heuristic': os.path.join(output_dir, 'greedy_output.csv'),
+        'Random Permutation': os.path.join(output_dir, 'random_output.csv'),
+        'Baseline': os.path.join(output_dir, 'baseline_output.csv')
+    }
 
-# Save results
-results_df = pd.DataFrame([{
-    'Container Volume': container_volume,
-    'Total Box Volume': total_box_volume,
-    'Space Utilization (%)': round(space_utilization, 2),
-    'Boxes Against Walls': boxes_against_walls,
-    'Unreasonable Edge Boxes': unreasonable_edge_boxes,
-    'Fragile Boxes Supported': 'Yes' if fragile_supported else 'No'
-}])
+    results = []
+    for name, path in strategies.items():
+        if os.path.exists(path):
+            results.append(evaluate_solution(path, name))
+        else:
+            print(f"[Warning] File not found: {path}")
 
-results_df.to_csv('data/optimization_results.csv', index=False)
-print("Results saved to 'data/optimization_results.csv'")
+    # Save all evaluations to one file
+    results_df = pd.DataFrame(results)
+    results_df.to_csv('data/optimization_comparison.csv', index=False)
+    print("\nSaved comparison results to 'data/optimization_comparison.csv'")
+
+if __name__ == '__main__':
+    main()

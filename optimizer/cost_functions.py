@@ -216,11 +216,11 @@ def advanced_cost_function(order, container):
     return (
         base_bias_penalty * 1.0 +
         slope_penalty_total * 2.0 +
-        wall_bonus -
+        0.5 * wall_bonus -
         0.1 * touching_bonus +
-        fragile_penalty +
-        edge_penalty +
-        volume_penalty +
-        height_penalty +
-        center_penalty
+        3.0 * fragile_penalty +
+        1.0 * edge_penalty +
+        2.0 * volume_penalty +
+        3.0 * height_penalty +
+        2.0 * center_penalty
     )
