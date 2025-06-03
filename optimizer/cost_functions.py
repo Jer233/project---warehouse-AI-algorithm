@@ -218,7 +218,7 @@ def advanced_cost_function(order, container):
         slope_penalty_total * 2.0 +
         0.5 * wall_bonus -
         0.1 * touching_bonus +
-        3.0 * fragile_penalty +
+        5.0 * fragile_penalty +
         1.0 * edge_penalty +
         2.0 * volume_penalty +
         3.0 * height_penalty +

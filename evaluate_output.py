@@ -28,7 +28,7 @@ def count_boxes_against_walls(boxes, container):
 boxes_against_walls = count_boxes_against_walls(boxes, container)
 
 # === METRIC 3: Fragile Boxes Supported ===
-def fragile_boxes_supported(boxes, threshold_volume=10):
+def fragile_boxes_supported(boxes):
     for fragile in [b for b in boxes if b['is_fragile'] == 1]:
         for other in boxes:
             if other == fragile:
@@ -38,8 +38,7 @@ def fragile_boxes_supported(boxes, threshold_volume=10):
                 not (other['x'] + other['width'] <= fragile['x'] or other['x'] >= fragile['x'] + fragile['width']) and
                 not (other['z'] + other['depth'] <= fragile['z'] or other['z'] >= fragile['z'] + fragile['depth'])):
                 vol = other['width'] * other['height'] * other['depth']
-                if vol >= threshold_volume:
-                    return False
+                return False
     return True
 fragile_supported = fragile_boxes_supported(boxes)
 
