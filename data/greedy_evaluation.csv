@@ -1,2 +1,2 @@
 Strategy,Container Volume,Total Box Volume,Space Utilization (%),Boxes Against Walls,Fragile Boxes Supported,Proportion Supported (%),Small Boxes on Edges,Maximum Stack Height,Center Offset
-greedy evaluation,1152,548.0,47.57,20,Yes,95.0,5,9.0,5.84
+greedy evaluation,1152,548.0,47.57,20,No,95.0,5,9.0,5.84
