@@ -1,0 +1,5 @@
+Strategy,Container Volume,Total Box Volume,Space Utilization (%),Boxes Against Walls,Unreasonable Edge Boxes,Fragile Boxes Supported,Center Offset
+Simulated Annealing,1152,733.0,63.63,26,2,Yes,5.95
+Greedy Heuristic,1152,548.0,47.57,20,5,No,7.62
+Random Permutation,1152,733.0,63.63,27,6,No,6.83
+Baseline,1152,733.0,63.63,24,4,Yes,6.18
